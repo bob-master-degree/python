@@ -1,0 +1,71 @@
+{% set true_set = ['true','likely_true'] %}
+{% set false_set = ['false','disputed'] %}
+{% set badges = {
+  'true': 'bg-green-100 text-green-700 border-green-200',
+  'likely_true': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  'disputed': 'bg-amber-100 text-amber-800 border-amber-200',
+  'false': 'bg-red-100 text-red-700 border-red-200',
+  'unverifiable': 'bg-slate-100 text-slate-700 border-slate-200'
+} %}
+
+{% if result.facts and result.facts|length > 0 %}
+  {% set t = result.facts | selectattr('verdict','in', true_set) | list %}
+  {% set f = result.facts | selectattr('verdict','in', false_set) | list %}
+  {% set u = result.facts | selectattr('verdict','equalto','unverifiable') | list %}
+
+  <div class="mb-4 p-4 border rounded-lg bg-slate-50">
+    <div class="font-medium mb-1">Итог:</div>
+    <div class="text-slate-700 text-sm">Достоверно: {{ t|length }}, Недостоверно/спорно: {{ f|length }}, Непроверяемо: {{ u|length }}</div>
+  </div>
+
+  {% if t|length > 0 %}
+    <h3 class="text-sm font-semibold text-green-700 mb-2">Достоверно</h3>
+    <ol class="space-y-3 mb-6">
+      {% for fct in t %}
+        <li class="border rounded-lg p-4">
+          <div class="flex items-start justify-between gap-3">
+            <h4 class="font-medium">{{ fct.claim }}</h4>
+            <span class="text-xs px-2 py-1 border rounded {{ badges.get(fct.verdict, badges['unverifiable']) }}">{{ fct.verdict }}</span>
+          </div>
+          <blockquote class="mt-2 p-3 rounded bg-slate-50 border text-sm">{{ fct.snippet }}</blockquote>
+          <p class="mt-2 text-sm text-slate-700">{{ fct.reason }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+
+  {% if f|length > 0 %}
+    <h3 class="text-sm font-semibold text-red-700 mb-2">Недостоверно / Спорно</h3>
+    <ol class="space-y-3 mb-6">
+      {% for fct in f %}
+        <li class="border rounded-lg p-4">
+          <div class="flex items-start justify-between gap-3">
+            <h4 class="font-medium">{{ fct.claim }}</h4>
+            <span class="text-xs px-2 py-1 border rounded {{ badges.get(fct.verdict, badges['unverifiable']) }}">{{ fct.verdict }}</span>
+          </div>
+          <blockquote class="mt-2 p-3 rounded bg-slate-50 border text-sm">{{ fct.snippet }}</blockquote>
+          <p class="mt-2 text-sm text-slate-700">{{ fct.reason }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+
+  {% if u|length > 0 %}
+    <h3 class="text-sm font-semibold text-slate-700 mb-2">Непроверяемо</h3>
+    <ol class="space-y-3">
+      {% for fct in u %}
+        <li class="border rounded-lg p-4">
+          <div class="flex items-start justify-between gap-3">
+            <h4 class="font-medium">{{ fct.claim }}</h4>
+            <span class="text-xs px-2 py-1 border rounded {{ badges.get(fct.verdict, badges['unverifiable']) }}">{{ fct.verdict }}</span>
+          </div>
+          <blockquote class="mt-2 p-3 rounded bg-slate-50 border text-sm">{{ fct.snippet }}</blockquote>
+          <p class="mt-2 text-sm text-slate-700">{{ fct.reason }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+
+{% else %}
+  <div class="text-slate-600">В тексте не обнаружены утверждения.</div>
+{% endif %}

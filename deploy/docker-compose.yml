@@ -1,0 +1,18 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: ./deploy/backend.Dockerfile
+    env_file:
+       - ./config/.env
+    volumes:
+      - ../backend/app:/app/backend/app:cached
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
