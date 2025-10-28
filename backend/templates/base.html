@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ру" class="h-full">
+<html lang="ru" class="h-full">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,7 +10,11 @@
         theme: {
           extend: {
             colors: {
-              primary: { 50:'#eef2ff',100:'#e0e7ff',200:'#c7d2fe',300:'#a5b4fc',400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca',800:'#3730a3',900:'#312e81' }
+              primary: {
+                50:'#eef2ff',100:'#e0e7ff',200:'#c7d2fe',300:'#a5b4fc',
+                400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca',
+                800:'#3730a3',900:'#312e81'
+              }
             }
           }
         }
@@ -26,7 +30,7 @@
             <span class="text-lg font-semibold tracking-tight">FactCheck</span>
           </div>
           <div class="flex items-center gap-3">
-            {% if request.url.path.startswith('/settings') %}
+            {% if request.path.startswith('/settings') %}
               <a href="/" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-slate-700 hover:bg-slate-50 shadow-sm">
                 <span class="h-2 w-2 rounded-full bg-slate-400"></span>
                 Назад

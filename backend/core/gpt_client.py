@@ -1,16 +1,14 @@
 import json
-from typing import Dict, Any, Optional
-from fastapi import Request
+from typing import Dict, Any
+from flask import session
 from openai import OpenAI
 
 _client_cache: dict[str, OpenAI] = {}
 
-def _get_api_key(request: Optional[Request]) -> str:
-    if request is not None:
-        session = getattr(request, "session", {})
-        key = session.get("openai_api_key")
-        if key:
-            return str(key)
+def _get_api_key() -> str:
+    key = session.get("openai_api_key")
+    if key:
+        return str(key)
     raise RuntimeError("OpenAI API Key not set. Go to Settings and save your key.")
 
 def _get_client(api_key: str) -> OpenAI:
@@ -20,8 +18,8 @@ def _get_client(api_key: str) -> OpenAI:
     _client_cache[api_key] = client
     return client
 
-def ask_question(question: str, request: Optional[Request] = None) -> str:
-    api_key = _get_api_key(request)
+def ask_question(question: str) -> str:
+    api_key = _get_api_key()
     client = _get_client(api_key)
     try:
         response = client.chat.completions.create(
@@ -32,12 +30,11 @@ def ask_question(question: str, request: Optional[Request] = None) -> str:
             ],
             temperature=0.2,
         )
-        content = response.choices[0].message.content
-        return content or ""
+        return response.choices[0].message.content or ""
     except Exception as exc:
         return f"Ошибка при обращении к модели: {exc}"
 
-def analyze_text_claims(text: str, request: Optional[Request] = None) -> Dict[str, Any]:
+def analyze_text_claims(text: str) -> Dict[str, Any]:
     prompt = f"""
     Ты — помощник по факт-проверке. Разбей текст на предложения. Для каждого предложения:
     1) Определи, является ли оно утверждением (констатацией факта), а не вопросом, не просьбой и не мнением.
@@ -65,7 +62,7 @@ def analyze_text_claims(text: str, request: Optional[Request] = None) -> Dict[st
     ---
     """
     try:
-        api_key = _get_api_key(request)
+        api_key = _get_api_key()
         client = _get_client(api_key)
         response = client.chat.completions.create(
             model="gpt-4o-mini",

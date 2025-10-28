@@ -1,25 +1,17 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
+from flask import Flask
+from flask_cors import CORS
+from backend.api.routes import bp
 import os
-from backend.api.routes import router
 
-app = FastAPI(title="FactCheck GPT Analyzer")
+def create_app():
+    app = Flask(__name__, template_folder="templates")
+    app.secret_key = os.getenv("APP_SESSION_SECRET", "supersecretkey")
+    CORS(app, supports_credentials=True)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    app.register_blueprint(bp)
+    return app
 
-app.add_middleware(
-    SessionMiddleware,
-    secret_key=os.getenv("APP_SESSION_SECRET"),
-    session_cookie="factcheck_session",
-    same_site="lax",
-    https_only=False,
-)
+app = create_app()
 
-app.include_router(router)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000)
